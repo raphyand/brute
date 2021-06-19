@@ -51,9 +51,18 @@ std::ostream& operator<<(std::ostream& out, const passwd& p) {
   return out;
 }
 
+//Additional Utility function to easily print out
+void PrintMatchResult(string match_result_type, string word, const passwd& target){
+  cout << "\n" << match_result_type << endl;
+  cout << "matched!\n";
+  cout << target << "\n";
+  std::cout << "Word: \t" << word << "\n\n"; 
+}
+
 int main(int argc, char const* argv[]) {
-  if (argc < 2) {
+  if (argc < 3) {
     std::cout << "Please provide an input password file.\n";
+    std::cout << "Please provide a dictionary file.";
     std::cout << "Exiting.\n";
     return 1;
   }
@@ -98,7 +107,73 @@ int main(int argc, char const* argv[]) {
     s = passwd_match.suffix();
   }
 
+
+
+
   // Here's a good spot to start brute forcing the passwords...
+
+    // Need to generate a whole bunch of hashes and find ones that match
+    //Might want to make a separate list or vector of salts
+    //Convenient to separate salts, since you have a list of targets
+  ifstream  words(argv[2]);
+  if(!words.is_open()){
+      cout << "The dictionary wasn't opened. Uh oh.\n";
+      return 1;
+  }
+  std::string word;
+  while(getline(words, word)){
+
+    for(auto target : targets){
+      
+      // Find and Test all words of the dictionary, AS they are, in the entry.
+      // Also happens to be ALL LOWERCASE 
+      char* hash = crypt(word.c_str(), target.salt.c_str());
+      string hash_str(hash);
+      if(hash_str == target.des_hash){
+        PrintMatchResult("Initial test: Normal Dictionary Entries, unmodified.", word, target);
+      }
+
+      // Test capitalization of the words
+      string word_capitalized = word.c_str();
+      word_capitalized[0] = toupper(word_capitalized[0]);
+      char* hash_capitalized = crypt(word_capitalized.c_str(), target.salt.c_str());
+      string hash_str_capitalized(hash_capitalized);
+      if(hash_str_capitalized == target.des_hash){
+        PrintMatchResult("Capitalized Word test:", word_capitalized, target);
+      }
+      
+      // Test all UPPERCASE
+      string all_upper_case = word.c_str();
+      for(int i = 0; i < all_upper_case.size(); i++)
+        all_upper_case[i] = toupper(all_upper_case[i]);
+
+      char* hash_upper = crypt(all_upper_case.c_str(), target.salt.c_str());
+      string hash_str_upper(hash_upper);
+      if(hash_str_upper == target.des_hash){
+        PrintMatchResult("ALL UPPER CASES:", all_upper_case, target);
+      }
+      //Append numbers 1 to 100 at the end of each word
+      
+      //Append one special character to end of word
+
+    }
+
+  }
+
+  words.close();
+
+  
+  //"elephant\0"
+  //base case
+  // base string with \0\0\0\0\0\0\0
+  //leftmost, you start it
+
 
   return 0;
 }
+/*26 abcdefghijklmnopqrstuvwxyz*/
+/*26 ABCDEFGHIJKLMNOPQRSTUVWXYZ*/
+/*10 0123456789*/
+/*33 !@#$%^&*()_+-=`~Pp[|\:"";',./<>?] */
+/*1 ' '*/
+
