@@ -152,7 +152,41 @@ int main(int argc, char const* argv[]) {
       if(hash_str_upper == target.des_hash){
         PrintMatchResult("ALL UPPER CASES:", all_upper_case, target);
       }
+
       //Append numbers 1 to 100 at the end of each word
+      string suffix_number_word = word.c_str();
+      for(int suffix = 0; suffix < 100; suffix++){
+        suffix_number_word.append(to_string(suffix));
+        char * hash_num_suffix = crypt(suffix_number_word.c_str(), target.salt.c_str()); 
+        string hash_str_num_suffix(hash_num_suffix);
+        //cout << suffix_number_word << endl;
+        if(hash_str_num_suffix == target.des_hash){
+          PrintMatchResult("Number Suffixed:", suffix_number_word, target);
+        }
+        //Remove appended characters to try next number
+        for (int i = 0; i < to_string(suffix).length(); i++){
+          suffix_number_word.pop_back();
+        }
+      }
+
+      //Append numbers 1 to 100 at the beginning of each word
+      string prefix_number_word = word.c_str();
+      for(int prefix = 0; prefix < 101; prefix++){
+        prefix_number_word = to_string(prefix).append(prefix_number_word);
+        char * hash_num_prefix = crypt(prefix_number_word.c_str(), target.salt.c_str()); 
+        string hash_str_num_prefix(hash_num_prefix);
+        //cout << prefix_number_word << endl;
+        if(hash_str_num_prefix == target.des_hash){
+          PrintMatchResult("Number Suffixed:", prefix_number_word, target);
+        }
+        //Remove appended characters to try next number
+        for (int i = 0; i < to_string(prefix).length(); i++){
+          prefix_number_word.erase(0,1);
+        }
+      }
+
+
+
       
       //Append one special character to end of word
 
