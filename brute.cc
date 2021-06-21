@@ -1,14 +1,13 @@
 // Raphael S. Andaya
 // CPSC 353-01
-// 2021-06-20
+// 2021-06-13
 // raphyand@csu.fullerton.edu
 // @raphyand
-// Copyright 2021 raphyand?
+//
 // Assignment 01
 //
-// Use various methods to process the master password file
-// and determine password hash matches.
-// How to use: ./brute <password file> <path to dictionary words>
+// Various trials to match passwords in master password file.
+//
 
 #include <chrono>
 #include <cstdlib>
@@ -71,6 +70,7 @@ void PrintMatchResult(string match_result_type, string word,
   cout << "Word: \t" << word << endl << endl;
 }
 
+// How to use: ./brute <password file> <path to dictionary words>
 int main(int argc, char const* argv[]) {
   if (argc < 3) {
     std::cout << "Please provide an input password file.\n";
