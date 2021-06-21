@@ -1,3 +1,14 @@
+// Raphael S. Andaya
+// CPSC 353-01
+// 2021-06-20
+// raphyand@csu.fullerton.edu
+// @raphyand
+// Copyright 2021 raphyand?
+// Assignment 01
+//
+// Use various methods to process the master password file
+// and determine password hash matches.
+// How to use: ./brute <password file> <path to dictionary words>
 
 #include <chrono>
 #include <cstdlib>
@@ -51,12 +62,13 @@ std::ostream& operator<<(std::ostream& out, const passwd& p) {
   return out;
 }
 
-//Additional Utility function to easily print out
-void PrintMatchResult(string match_result_type, string word, const passwd& target){
+// Additional Utility function to easily print out
+void PrintMatchResult(string match_result_type, string word,
+                      const passwd& target) {
   cout << "\n" << match_result_type << endl;
   cout << "matched!\n";
   cout << target << "\n";
-  std::cout << "Word: \t" << word << "\n\n"; 
+  cout << "Word: \t" << word << endl << endl;
 }
 
 int main(int argc, char const* argv[]) {
@@ -106,103 +118,137 @@ int main(int argc, char const* argv[]) {
     targets.push_back(p);
     s = passwd_match.suffix();
   }
-
-
-
-
   // Here's a good spot to start brute forcing the passwords...
 
-    // Need to generate a whole bunch of hashes and find ones that match
-    //Might want to make a separate list or vector of salts
-    //Convenient to separate salts, since you have a list of targets
-  ifstream  words(argv[2]);
-  if(!words.is_open()){
-      cout << "The dictionary wasn't opened. Uh oh.\n";
-      return 1;
+  // Need to generate a whole bunch of hashes and find ones that match
+  // Might want to make a separate list or vector of salts
+  // Convenient to separate salts, since you have a list of targets
+  ifstream words(argv[2]);
+  if (!words.is_open()) {
+    cout << "The dictionary wasn't opened. Uh oh.\n";
+    return 1;
   }
   std::string word;
-  while(getline(words, word)){
-
-    for(auto target : targets){
-      
+  while (getline(words, word)) {
+    for (auto target : targets) {
       // Find and Test all words of the dictionary, AS they are, in the entry.
-      // Also happens to be ALL LOWERCASE 
+      // (Lowercase)
       char* hash = crypt(word.c_str(), target.salt.c_str());
       string hash_str(hash);
-      if(hash_str == target.des_hash){
-        PrintMatchResult("Initial test: Normal Dictionary Entries, unmodified.", word, target);
+      if (hash_str == target.des_hash) {
+        PrintMatchResult("Initial test: Normal Dictionary Entries, unmodified.",
+                         word, target);
       }
 
       // Test capitalization of the words
-      string word_capitalized = word.c_str();
+      string word_capitalized = word;
       word_capitalized[0] = toupper(word_capitalized[0]);
-      char* hash_capitalized = crypt(word_capitalized.c_str(), target.salt.c_str());
+      char* hash_capitalized =
+          crypt(word_capitalized.c_str(), target.salt.c_str());
       string hash_str_capitalized(hash_capitalized);
-      if(hash_str_capitalized == target.des_hash){
+      if (hash_str_capitalized == target.des_hash) {
         PrintMatchResult("Capitalized Word test:", word_capitalized, target);
       }
-      
       // Test all UPPERCASE
-      string all_upper_case = word.c_str();
-      for(int i = 0; i < all_upper_case.size(); i++)
+      string all_upper_case = word;
+      for (int i = 0; i < all_upper_case.length(); i++) {
         all_upper_case[i] = toupper(all_upper_case[i]);
-
+      }
       char* hash_upper = crypt(all_upper_case.c_str(), target.salt.c_str());
       string hash_str_upper(hash_upper);
-      if(hash_str_upper == target.des_hash){
+      if (hash_str_upper == target.des_hash) {
         PrintMatchResult("ALL UPPER CASES:", all_upper_case, target);
       }
 
-      //Append numbers 1 to 100 at the end of each word
-      string suffix_number_word = word.c_str();
-      for(int suffix = 0; suffix < 100; suffix++){
+      // Append numbers 1 to 100 at the end of each word
+      string suffix_number_word = word;
+      for (int suffix = 0; suffix < 100; suffix++) {
         suffix_number_word.append(to_string(suffix));
-        char * hash_num_suffix = crypt(suffix_number_word.c_str(), target.salt.c_str()); 
+        char* hash_num_suffix =
+            crypt(suffix_number_word.c_str(), target.salt.c_str());
         string hash_str_num_suffix(hash_num_suffix);
-        //cout << suffix_number_word << endl;
-        if(hash_str_num_suffix == target.des_hash){
+        if (hash_str_num_suffix == target.des_hash) {
           PrintMatchResult("Number Suffixed:", suffix_number_word, target);
         }
-        //Remove appended characters to try next number
-        for (int i = 0; i < to_string(suffix).length(); i++){
+        // Remove appended characters to try next number
+        for (int i = 0; i < to_string(suffix).length(); i++) {
           suffix_number_word.pop_back();
         }
       }
 
-      //Append numbers 1 to 100 at the beginning of each word
-      string prefix_number_word = word.c_str();
-      for(int prefix = 0; prefix < 101; prefix++){
+      // Append numbers 1 to 100 at the beginning of each word
+      string prefix_number_word = word;
+      for (int prefix = 0; prefix < 101; prefix++) {
         prefix_number_word = to_string(prefix).append(prefix_number_word);
-        char * hash_num_prefix = crypt(prefix_number_word.c_str(), target.salt.c_str()); 
+        char* hash_num_prefix =
+            crypt(prefix_number_word.c_str(), target.salt.c_str());
         string hash_str_num_prefix(hash_num_prefix);
-        //cout << prefix_number_word << endl;
-        if(hash_str_num_prefix == target.des_hash){
+        if (hash_str_num_prefix == target.des_hash) {
           PrintMatchResult("Number Suffixed:", prefix_number_word, target);
         }
-        //Remove appended characters to try next number
-        for (int i = 0; i < to_string(prefix).length(); i++){
-          prefix_number_word.erase(0,1);
+        // Remove appended characters to try next number
+        for (int i = 0; i < to_string(prefix).length(); i++) {
+          prefix_number_word.erase(0, 1);
         }
       }
 
+      // Replace every o with a 0
+      string word_replace_o = word;
+      bool has_o = false;
+      for (int i = 0; i < word_replace_o.length(); i++) {
+        if (word_replace_o[i] == 'o') {
+          word_replace_o.replace(i, 1, "0");
+          has_o = true;
+        }
+      }
+      char* hash_rep_o = crypt(word_replace_o.c_str(), target.salt.c_str());
+      string hash_str_rep_o(hash_rep_o);
+      if (hash_str_rep_o == target.des_hash && has_o) {
+        PrintMatchResult("Words with o replaced with 0", word_replace_o,
+                         target);
+      }
+      has_o = false;
+      // Replace every i with a 1
+      string word_replace_i = word;
+      bool has_i = false;
+      for (int i = 0; i < word_replace_i.length(); i++) {
+        if (word_replace_i[i] == 'i') {
+          word_replace_i.replace(i, 1, "1");
+          has_i = true;
+        }
+      }
+      char* hash_rep_i = crypt(word_replace_i.c_str(), target.salt.c_str());
+      string hash_str_rep_i(hash_rep_i);
+      if (hash_str_rep_i == target.des_hash && has_i) {
+        PrintMatchResult("Words with i replaced with 1", word_replace_i,
+                         target);
+      }
+      has_i = false;
 
+      // Append one special character to end of word ascii values 32 - 47
+      string word_ascii = word;
+      for (char i = ' '; i < '0'; i++) {
+        string ascii(1, i);
+        word_ascii.append(ascii);
+        char* hash_ascii = crypt(word_ascii.c_str(), target.salt.c_str());
+        string hash_str_ascii(hash_ascii);
+        if (hash_str_ascii == target.des_hash) {
+          PrintMatchResult("Ascii Special Characters appended.", word_ascii,
+                           target);
+        }
+        for (int i = 0; i < ascii.length(); i++) {
+          word_ascii.pop_back();
+        }
+      }
 
-      
-      //Append one special character to end of word
-
-    }
-
+      // End
+    }  // End of While
   }
-
   words.close();
-
-  
-  //"elephant\0"
-  //base case
+  // "elephant\0"
+  // base case
   // base string with \0\0\0\0\0\0\0
-  //leftmost, you start it
-
-
+  // leftmost, you start it
   return 0;
 }
 /*26 abcdefghijklmnopqrstuvwxyz*/
@@ -210,4 +256,3 @@ int main(int argc, char const* argv[]) {
 /*10 0123456789*/
 /*33 !@#$%^&*()_+-=`~Pp[|\:"";',./<>?] */
 /*1 ' '*/
-
