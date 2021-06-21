@@ -194,4 +194,4 @@ For each problem:
 * Format & Readability (4 point): Your submission shall be assessed by checking whether your code passess the style and format check, as well as how well it follows the proper naming conventions, and internal documentation guidelines. Git log messages are an integral part of how readable your project is. Failure to include a header forfeits all marks. Failure to not conform to the [Google C++ coding style](https://google.github.io/styleguide/cppguide.html) forfeits all marks.
 
 # How to run program
-./brute <password file> <path to dictionary words>
+./brute password_file path_to_dictionary_words
